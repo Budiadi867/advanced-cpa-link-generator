@@ -77,6 +77,7 @@ HTML;
 
 
 
+
 $protection = new AdvancedMobileProtection();
 $finalUrl = $protection->process($linkData['smartlink']);
 
