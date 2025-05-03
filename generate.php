@@ -64,6 +64,15 @@ class LinkGenerator {
             if (!empty($this->ogData['image'])) {
                 $imageFileName = basename(parse_url($this->ogData['image'], PHP_URL_PATH));
                 $proxyImageUrl = SITE_URL . '/image_proxy.php?img=' . urlencode($imageFileName);
+
+                // Generate short code for image proxy URL
+                $imageShortCode = $this->generateImageShortCode();
+
+                // Store image shortlink mapping
+                $this->storeImageShortlink($imageShortCode, $proxyImageUrl);
+
+                // Use short image URL in OG metadata
+                $proxyImageUrl = SITE_URL . '/i/' . $imageShortCode;
             }
             $this->ogData['image'] = $proxyImageUrl;
 
@@ -71,9 +80,17 @@ class LinkGenerator {
 
             $protectedUrl = $this->createProtectedUrl($token);
 
+            // Generate short code
+            $shortCode = $this->generateShortCode();
+
+            // Store shortlink mapping
+            $this->storeShortlink($shortCode, $protectedUrl);
+
+            $shortlinkUrl = SITE_URL . '/t/' . $shortCode;
+
             return [
                 'success' => true,
-                'url' => $protectedUrl,
+                'url' => $shortlinkUrl,
                 'preview' => [
                     'title' => $this->ogData['title'],
                     'description' => $this->ogData['description'],
@@ -90,12 +107,50 @@ class LinkGenerator {
         }
     }
 
+    private function generateShortCode() {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $code = '';
+        for ($i = 0; $i < 7; $i++) {
+            $code .= $chars[random_int(0, strlen($chars) - 1)];
+        }
+        return $code;
+    }
+
+    private function storeShortlink($code, $url) {
+        $shortlinks = [];
+        $file = __DIR__ . '/shortlinks.json';
+        if (file_exists($file)) {
+            $shortlinks = json_decode(file_get_contents($file), true) ?? [];
+        }
+        $shortlinks[$code] = $url;
+        file_put_contents($file, json_encode($shortlinks, JSON_PRETTY_PRINT));
+    }
+
     private function validateInputs() {
         return $this->smartlink &&
                !empty($this->campaign) &&
                !empty($this->ogData['title']) &&
                !empty($this->ogData['description']) &&
                $this->ogData['image'];
+    }
+
+    private function generateImageShortCode() {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $code = '';
+        for ($i = 0; $i < 7; $i++) {
+            $code .= $chars[random_int(0, strlen($chars) - 1)];
+        }
+        return $code;
+    }
+
+    private function storeImageShortlink($code, $url) {
+        $file = __DIR__ . '/image_shortlinks.json';
+        $shortlinks = [];
+        if (file_exists($file)) {
+            $shortlinks = json_decode(file_get_contents($file), true) ?? [];
+        }
+        $shortlinks[$code] = $url;
+        file_put_contents($file, json_encode($shortlinks, JSON_PRETTY_PRINT));
     }
 
     private function generateToken() {
