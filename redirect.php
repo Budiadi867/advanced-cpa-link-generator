@@ -47,15 +47,35 @@ function isFacebookBot() {
 }
 
 if (isFacebookBot()) {
-    $fbAppId = generateRandomFbAppId();
+    // Serve OG metadata white page
     header('Content-Type: text/html; charset=utf-8');
     $title = htmlspecialchars($linkData['og']['title'] ?? '');
     $description = htmlspecialchars($linkData['og']['description'] ?? '');
     $image = htmlspecialchars($linkData['og']['image'] ?? '');
     $url = htmlspecialchars('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-    echo "<!DOCTYPE html><html><head><title>{$title}</title><meta property='fb:app_id' content='" . rand(100000000000000, 999999999999999) . "'/><meta property='og:title' content='{$title}'/><meta property='og:description' content='{$description}'/><meta property='og:image' content='{$image}'/><meta property='og:url' content='{$url}'/><meta property='og:type' content='website'/></head><body><div style='display:none;'>{$description}</div></body></html>";
+    $fbAppId = '1604020986967005';
+    echo <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{$title}</title>
+    <meta property="fb:app_id" content="{$fbAppId}" />
+    <meta property="og:title" content="{$title}" />
+    <meta property="og:description" content="{$description}" />
+    <meta property="og:image" content="{$image}" />
+    <meta property="og:url" content="{$url}" />
+    <meta property="og:type" content="website" />
+</head>
+<body>
+    <div style="display:none;">{$description}</div>
+</body>
+</html>
+HTML;
     exit;
 }
+
+
+
 
 $protection = new AdvancedMobileProtection();
 $finalUrl = $protection->process($linkData['smartlink']);
