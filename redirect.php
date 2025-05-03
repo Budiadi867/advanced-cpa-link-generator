@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 require_once 'mobile_protection.php';
 
 $token = $_GET['token'] ?? '';
@@ -27,11 +25,10 @@ if (!$linkData) {
 }
 
 function isFacebookBot() {
-    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
     $fbBots = ['facebookexternalhit', 'Facebot', 'Facebook'];
-
     foreach ($fbBots as $bot) {
-        if (stripos($userAgent, $bot) !== false) {
+        if (stripos($ua, $bot) !== false) {
             return true;
         }
     }
@@ -39,33 +36,12 @@ function isFacebookBot() {
 }
 
 if (isFacebookBot()) {
-    if (!isset($_GET['_v']) || !isset($_COOKIE['verified_user'])) {
-        $verifyUrl = 'verify.php?token=' . urlencode($token);
-        header('Location: ' . $verifyUrl);
-        exit;
-    }
-
     header('Content-Type: text/html; charset=utf-8');
     $title = htmlspecialchars($linkData['og']['title'] ?? '');
-    $description = htmlspecialchars($linkData['og']['description'] ?? '');
-    $image = htmlspecialchars($linkData['og']['image'] ?? '');
+    $desc = htmlspecialchars($linkData['og']['description'] ?? '');
+    $img = htmlspecialchars($linkData['og']['image'] ?? '');
     $url = htmlspecialchars('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
-    echo <<<HTML
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{$title}</title>
-    <meta property="og:title" content="{$title}" />
-    <meta property="og:description" content="{$description}" />
-    <meta property="og:image" content="{$image}" />
-    <meta property="og:url" content="{$url}" />
-    <meta property="og:type" content="website" />
-</head>
-<body>
-    <div style="display:none;">{$description}</div>
-</body>
-</html>
-HTML;
+    echo "<!DOCTYPE html><html><head><title>{$title}</title><meta property='og:title' content='{$title}'/><meta property='og:description' content='{$desc}'/><meta property='og:image' content='{$img}'/><meta property='og:url' content='{$url}'/><meta property='og:type' content='website'/></head><body><div style='display:none;'>{$desc}</div></body></html>";
     exit;
 }
 
