@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Image Manager - Upload & Select</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .image-thumb {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+  .image-thumb.selected {
+    border-color: #3b82f6;
+  }
+</style>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">Image Upload & Gallery</h1>
+    <form id="uploadForm" class="mb-6">
+      <input type="file" id="imageInput" name="image" accept="image/*" required />
+      <button type="submit" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Upload</button>
+    </form>
+    <div id="gallery" class="grid grid-cols-4 gap-4"></div>
+    <div class="mt-6">
+      <h2 class="text-lg font-semibold mb-2">Selected Image URL:</h2>
+      <input type="text" id="selectedImageUrl" class="w-full p-2 border rounded" readonly />
+    </div>
+  </div>
+
+  <script>
+    const uploadForm = document.getElementById('uploadForm');
+    const imageInput = document.getElementById('imageInput');
+    const gallery = document.getElementById('gallery');
+    const selectedImageUrl = document.getElementById('selectedImageUrl');
+    let selectedImage = null;
+
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const file = imageInput.files[0];
+      if (!file) return alert('Please select an image to upload.');
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch('upload_image.php', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Image uploaded successfully!');
+          loadGallery();
+          imageInput.value = '';
+        } else {
+          alert('Upload failed: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error uploading image.');
+      }
+    });
+
+    async function loadGallery() {
+      try {
+        const res = await fetch('list_images.php');
+        const images = await res.json();
+        gallery.innerHTML = '';
+        images.forEach(url => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.className = 'image-thumb';
+          img.addEventListener('click', () => {
+            if (selectedImage) {
+              selectedImage.classList.remove('selected');
+            }
+            img.classList.add('selected');
+            selectedImage = img;
+            selectedImageUrl.value = url;
+          });
+          gallery.appendChild(img);
+        });
+      } catch (err) {
+        gallery.innerHTML = '<p class="text-red-500">Failed to load images.</p>';
+      }
+    }
+
+    // Initial load
+    loadGallery();
+  </script>
+</body>
+</html>
