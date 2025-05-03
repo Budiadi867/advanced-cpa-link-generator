@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Rewrite short URLs to redirect.php
+RewriteRule ^([a-zA-Z0-9]{6,8})$ redirect.php?token=$1 [L,QSA]
+
+# Protect sensitive files
+<FilesMatch "^(config\.php|links\.json|clicks\.json)$">
+    Require all denied
+</FilesMatch>
