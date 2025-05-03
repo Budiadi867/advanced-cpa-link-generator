@@ -1,9 +1,12 @@
 RewriteEngine On
 
-# Rewrite short URLs to redirect.php
-RewriteRule ^([a-zA-Z0-9]{6,8})$ redirect.php?token=$1 [L,QSA]
+# Rewrite short URLs to shortlink.php
+RewriteRule ^t/([a-zA-Z0-9]{6,8})$ shortlink.php?code=$1 [L,QSA]
+
+# Rewrite image short URLs to image_shortlink.php
+RewriteRule ^i/([a-zA-Z0-9]{6,8})$ image_shortlink.php?code=$1 [L,QSA]
 
 # Protect sensitive files
-<FilesMatch "^(config\.php|links\.json|clicks\.json)$">
+<FilesMatch "^(config\.php|links\.json|clicks\.json|shortlinks\.json|image_shortlinks\.json)$">
     Require all denied
 </FilesMatch>
