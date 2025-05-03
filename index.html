@@ -40,18 +40,19 @@
                                   placeholder="Compelling description for your Facebook post (default used if empty)"></textarea>
                     </div>
 
-                    <div class="flex items-center space-x-2">
-                        <div class="flex-grow">
-                            <label class="block text-sm font-medium mb-1">Post Image URL</label>
-                            <input type="url" id="og_image" name="og_image" required
-                                   class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                                   placeholder="https://example.com/your-image.jpg">
-                        </div>
-                        <button type="button" id="openImageManager" 
-                                class="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                            Select Image
-                        </button>
-                    </div>
+            <div class="flex items-center space-x-2">
+                <div class="flex-grow">
+                    <label class="block text-sm font-medium mb-1">Post Image URL</label>
+                    <input type="url" id="og_image" name="og_image"
+                           class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                           placeholder="https://example.com/your-image.jpg (or select from manager)">
+                </div>
+                <button type="button" id="openImageManager" 
+                        class="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                    Select Image
+                </button>
+            </div>
+
 
                     <!-- Facebook Preview -->
                     <div id="fbPreview" class="hidden mt-4 border rounded-lg p-4">
