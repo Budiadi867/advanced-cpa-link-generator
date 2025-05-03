@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Advanced CPA Link Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold mb-6 text-center">CPA Link Generator</h1>
+            
+            <form id="linkGenerator" class="space-y-6">
+                <!-- Basic Settings -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-700">Basic Settings</h2>
+                    <!-- Trafee Smartlink URL input removed as per request -->
+
+                    <!-- Campaign Name removed as per request -->
+                </div>
+
+                <!-- Facebook Display Options -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-700">
+                        <i class="fab fa-facebook text-blue-600"></i> Facebook Display Options
+                    </h2>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Post Title</label>
+                        <input type="text" name="og_title"
+                               class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                               placeholder="Engaging title for Facebook post (default used if empty)">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Post Description</label>
+                        <textarea name="og_description"
+                                  class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 h-24"
+                                  placeholder="Compelling description for your Facebook post (default used if empty)"></textarea>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <div class="flex-grow">
+                            <label class="block text-sm font-medium mb-1">Post Image URL</label>
+                            <input type="url" id="og_image" name="og_image" required
+                                   class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                                   placeholder="https://example.com/your-image.jpg">
+                        </div>
+                        <button type="button" id="openImageManager" 
+                                class="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                            Select Image
+                        </button>
+                    </div>
+
+                    <!-- Facebook Preview -->
+                    <div id="fbPreview" class="hidden mt-4 border rounded-lg p-4">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Facebook Preview</h3>
+                        <div class="bg-gray-50 rounded">
+                            <img id="previewImage" class="w-full h-52 object-cover rounded-t" src="" alt="Preview">
+                            <div class="p-3">
+                                <h4 id="previewTitle" class="font-bold text-[13px] leading-5"></h4>
+                                <p id="previewDesc" class="text-[12px] text-gray-500 mt-1 line-clamp-2"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Protection Features -->
+                <div class="space-y-4">
+                    <h2 class="text-lg font-semibold text-gray-700">Protection Features</h2>
+                    <div class="bg-gray-50 p-4 rounded space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="features[]" value="mobile" checked
+                                   class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="ml-2">Mobile Device Simulation</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="features[]" value="fb" checked
+                                   class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="ml-2">Facebook App Protection</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="features[]" value="fingerprint" checked
+                                   class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="ml-2">Browser Fingerprint Rotation</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                    Generate Protected Link
+                </button>
+            </form>
+
+            <!-- Result Section -->
+            <div id="result" class="mt-6 hidden">
+                <h3 class="font-medium mb-2">Your Protected Link:</h3>
+                <div class="bg-gray-50 p-4 rounded">
+                    <p id="generatedLink" class="mb-2 break-all"></p>
+                    <button onclick="copyLink()" 
+                            class="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 transition-colors">
+                        <i class="far fa-copy mr-1"></i> Copy Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Live Preview Updates
+        document.querySelectorAll('input[name="og_title"], textarea[name="og_description"], input[name="og_image"]')
+            .forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+
+        function updatePreview() {
+            const title = document.querySelector('input[name="og_title"]').value;
+            const desc = document.querySelector('textarea[name="og_description"]').value;
+            const image = document.querySelector('input[name="og_image"]').value;
+
+            if (title || desc || image) {
+                document.getElementById('fbPreview').classList.remove('hidden');
+                if (image) document.getElementById('previewImage').src = image;
+                if (title) document.getElementById('previewTitle').textContent = title;
+                if (desc) document.getElementById('previewDesc').textContent = desc;
+            }
+        }
+
+        // Form Submission
+        document.getElementById('linkGenerator').onsubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = new FormData(form);
+
+            try {
+                const response = await fetch('generate.php', {
+                    method: 'POST',
+                    body: data
+                });
+                const result = await response.json();
+                
+                if(result.success) {
+                    document.getElementById('result').classList.remove('hidden');
+                    document.getElementById('generatedLink').textContent = result.url;
+                } else {
+                    alert(result.error || 'Error generating link');
+                }
+            } catch(err) {
+                alert('Error generating link. Please try again.');
+            }
+        };
+
+        // Copy Link Function
+        function copyLink() {
+            const link = document.getElementById('generatedLink').textContent;
+            navigator.clipboard.writeText(link);
+            alert('Link copied to clipboard!');
+        }
+
+        // Open Image Manager
+        document.getElementById('openImageManager').addEventListener('click', () => {
+            window.open('image_manager.html', 'Image Manager', 'width=800,height=600');
+        });
+
+        // Listen for image selection from image_manager.html
+        window.addEventListener('message', (event) => {
+            if (event.origin !== window.location.origin) return;
+            if (event.data.type === 'imageSelected') {
+                document.getElementById('og_image').value = event.data.url;
+                updatePreview();
+            }
+        });
+    </script>
+</body>
+</html>
