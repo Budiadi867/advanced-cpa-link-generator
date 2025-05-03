@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-define('SITE_URL', 'https://chatdatlng.biz.id/n');
+define('SITE_URL', 'https://chatdatlng.biz.id');
 define('TOKEN_LENGTH', 12);
 
 class LinkGenerator {
