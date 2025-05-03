@@ -1,9 +1,9 @@
 RewriteEngine On
 
-# Rewrite short URLs to shortlink.php
+# Rewrite short URLs with /t/ prefix to shortlink.php in root
 RewriteRule ^t/([a-zA-Z0-9]{6,8})$ shortlink.php?code=$1 [L,QSA]
 
-# Rewrite image short URLs to image_shortlink.php
+# Rewrite image short URLs with /t/i/ prefix to image_shortlink.php in root
 RewriteRule ^t/i/([a-zA-Z0-9]{6,8})$ image_shortlink.php?code=$1 [L,QSA]
 
 # Protect sensitive files
